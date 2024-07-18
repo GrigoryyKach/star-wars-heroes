@@ -2,15 +2,16 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import ReactFlow, { Controls, Background } from 'reactflow';
 import 'reactflow/dist/style.css';
+
 import Characteristics from './Characteristics';
+import { URL } from '@/constants/urls';
 
 const HeroDetailGraph = ({ hero }) => {
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
-  const URL = 'https://sw-api.starnavi.io/';
-  console.log(hero);
 
   useEffect(() => {
+    // Function to fetch data with a delay
     const fetchWithDelay = async (urls, delay) => {
       const results = [];
       for (let i = 0; i < urls.length; i++) {
@@ -18,13 +19,14 @@ const HeroDetailGraph = ({ hero }) => {
           const response = await axios.get(urls[i]);
           results.push(response);
         } catch (error) {
-          console.error(`Error fetching ${urls[i]}:`, error);
+          console.error(`Error fetching ${urls[i]}:`, error); // Log any errors
         }
         await new Promise((resolve) => setTimeout(resolve, delay));
       }
       return results;
     };
 
+    // Function to fetch hero details from the API
     const fetchHeroDetails = async () => {
       try {
         const filmUrls = hero.films ? hero.films.map((id) => `${URL}/films/${id}`) : [];
@@ -36,7 +38,7 @@ const HeroDetailGraph = ({ hero }) => {
         const heroNode = {
           id: 'hero',
           data: { label: hero.name },
-          position: { x: 900, y: 100 },
+          position: { x: 700, y: 100 },
           style: {
             'font-weight': 'bold'
           }
@@ -45,7 +47,7 @@ const HeroDetailGraph = ({ hero }) => {
         const filmsNode = {
           id: 'films',
           data: { label: 'Films' },
-          position: { x: 600, y: 300 },
+          position: { x: 400, y: 300 },
           style: {
             'font-weight': 'bold'
           }
@@ -54,7 +56,7 @@ const HeroDetailGraph = ({ hero }) => {
         const starshipsNode = {
           id: 'starships',
           data: { label: 'Starships' },
-          position: { x: 1200, y: 300 },
+          position: { x: 1000, y: 300 },
           style: {
             'font-weight': 'bold'
           }
@@ -63,21 +65,22 @@ const HeroDetailGraph = ({ hero }) => {
         const characteristicsNode = {
           id: 'characteristics',
           data: { label: <Characteristics hero={hero} /> },
-          position: { x: 877, y: 250 },
+          position: { x: 676, y: 250 },
           style: {
             width: 200,
           }
         };
 
-        const arrangeNodesInLine = (parentX, parentY, count, distanceX, negativeDistance = 0) => {
+        const arrangeNodesInLine = (parentX, parentY, count, distanceX, direction) => {
           return Array.from({ length: count }, (_, idx) => ({
-            x: (parentX - negativeDistance) + distanceX * idx,
+            x: parentX + (direction === 'right' ? distanceX * idx : -distanceX * idx),
             y: parentY + distanceX,
           }));
         };
 
-        const filmNodesPositions = arrangeNodesInLine(filmsNode.position.x, filmsNode.position.y, films.length, 150, 750);
-        const starshipNodesPositions = arrangeNodesInLine(starshipsNode.position.x, starshipsNode.position.y, starships.length, 150);
+        // Position the nodes relative to the parent element
+        const filmNodesPositions = arrangeNodesInLine(filmsNode.position.x, filmsNode.position.y, films.length, 150, 'left');
+        const starshipNodesPositions = arrangeNodesInLine(starshipsNode.position.x, starshipsNode.position.y, starships.length, 150, 'right');
 
         const filmNodes = films.map((film, idx) => ({
           id: `film-${idx}`,
@@ -100,11 +103,12 @@ const HeroDetailGraph = ({ hero }) => {
           ...starshipNodes.map((starshipNode) => ({ id: `e-${starshipNode.id}`, source: 'starships', target: starshipNode.id }))
         ];
 
-        setNodes(nodes);
+        // Set the nodes for the graph
+        setNodes(nodes); 
         setEdges(edges);
 
       } catch (error) {
-        console.error('Error fetching hero details:', error);
+        console.error('Error fetching hero details:', error); // Log any errors
       }
     };
 
@@ -112,7 +116,7 @@ const HeroDetailGraph = ({ hero }) => {
   }, [hero]);
 
   return (
-    <div style={{ height: 'calc(100vh - 100px)' }}>
+    <div className="h-[calc(100vh-100px)] bg-black">
       <ReactFlow nodes={nodes} edges={edges}>
         <Controls />
         <Background color='white' style={{ "backgroundColor": 'black' }} />

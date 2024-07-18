@@ -1,45 +1,46 @@
 "use client"
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
+
 import HeroCard from './HeroCard';
+import { URL } from '@/constants/urls';
 
 const HeroList = () => {
-  const [heroes, setHeroes] = useState([]);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
-  const heroesPerPage = 10;
+  const [heroes, setHeroes] = useState([]); // State to store the list of heroes
+  const [page, setPage] = useState(1); // State to store the current page
+  const [totalPages, setTotalPages] = useState(0); // State to store the total number of pages
+  const heroesPerPage = 10; // Number of heroes per page
 
   useEffect(() => {
+    // Function to fetch heroes from the API
     const fetchHeroes = async () => {
-
       try {
-        const response = await axios.get(`https://sw-api.starnavi.io/people?page=${page}`);
-        setHeroes([response.data.results]);
-        setTotalPages(Math.ceil(response.data.count / heroesPerPage));
+        const response = await axios.get(`${URL}/people?page=${page}`);
+        setHeroes([response.data.results]); // Set the heroes data
+        setTotalPages(Math.ceil(response.data.count / heroesPerPage)); // Calculate and set the total number of pages
       } catch (error) {
-        console.error('Error fetching heroes:', error);
-      } finally {
+        console.error('Error fetching heroes:', error); // Log any errors
       }
     };
 
     fetchHeroes();
   }, [page]);
 
+  // Function to handle next page button click
   const handleNextPage = () => {
     if (page < totalPages) {
       setPage(page + 1);
     }
   };
 
+  // Function to handle previous page button click
   const handlePreviousPage = () => {
     if (page > 1) {
       setPage(page - 1);
     }
   }
-
-  console.log(heroes);
 
   return (
     <div className='container mx-auto p-4'>

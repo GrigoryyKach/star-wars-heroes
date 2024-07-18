@@ -1,6 +1,8 @@
+import React from 'react';
 import 'tailwindcss/tailwind.css';
 
 const Characteristics = (hero) => {
+  // Destructure hero characteristics
   const { birth_year, eye_color, gender, hair_color, height, homeworld, mass, skin_color } = hero.hero;
 
   return (
